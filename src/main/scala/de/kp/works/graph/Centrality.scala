@@ -17,7 +17,6 @@ package de.kp.works.graph
  * @author Stefan Krusche, Dr. Krusche & Partner PartG
  *
  */
-
 class Centrality {
   /**
    * Degree centrality assigns an importance score based simply on the

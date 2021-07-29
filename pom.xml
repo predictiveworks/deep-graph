@@ -73,6 +73,22 @@
       <version>${spark.version}</version>
 	</dependency>
 
+    <!-- APACHE SPARK GRAPHX
+    -->
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-graphx_${scala.binary.version}</artifactId>
+      <version>${spark.version}</version>
+    </dependency>
+
+    <!-- FASTUTIL
+    -->
+    <dependency>
+      <groupId>it.unimi.dsi</groupId>
+      <artifactId>fastutil</artifactId>
+      <version>8.5.4</version>
+    </dependency>
+
     <!-- GRAPHFRAMES
 
     This library is not available on Maven central (see repository).
