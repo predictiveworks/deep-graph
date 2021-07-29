@@ -15,4 +15,5 @@ trait VertexMeasure[OV] {
 
   def compute[VD:ClassTag,ED:ClassTag](graph:Graph[VD,ED],vertexMeasureConfiguration: VertexMeasureConfiguration[VD,ED])(implicit num:Numeric[ED]):Graph[OV,ED]
 
+
 }

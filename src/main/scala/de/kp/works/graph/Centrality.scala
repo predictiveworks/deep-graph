@@ -17,6 +17,9 @@ package de.kp.works.graph
  * @author Stefan Krusche, Dr. Krusche & Partner PartG
  *
  */
+
+import org.graphframes.GraphFrame
+
 class Centrality {
   /**
    * Degree centrality assigns an importance score based simply on the

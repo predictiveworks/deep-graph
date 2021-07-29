@@ -1,4 +1,4 @@
-package ml.sparkling.graph.operators.measures.vertex.closenes
+package ml.sparkling.graph.operators.measures.vertex.closeness
 
 /**
  * Created by Roman Bartusiak (roman.bartusiak@pwr.edu.pl http://riomus.github.io).

@@ -1,8 +1,8 @@
-package ml.sparkling.graph.operators.measures.vertex.closenes
+package ml.sparkling.graph.operators.measures.vertex.closeness
 
 import ml.sparkling.graph.api.operators.measures.{VertexMeasure, VertexMeasureConfiguration}
 import ml.sparkling.graph.operators.algorithms.shortestpaths.ShortestPathsAlgorithm
-import ml.sparkling.graph.operators.measures.vertex.closenes.ClosenessUtils._
+import ml.sparkling.graph.operators.measures.vertex.closeness.ClosenessUtils._
 import ml.sparkling.graph.operators.predicates.InArrayPredicate
 import org.apache.log4j.Logger
 import org.apache.spark.graphx.{Graph, VertexId}
