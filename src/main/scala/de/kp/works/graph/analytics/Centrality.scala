@@ -1,4 +1,5 @@
-package de.kp.works.graph
+package de.kp.works.graph.analytics
+
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -17,8 +18,6 @@ package de.kp.works.graph
  * @author Stefan Krusche, Dr. Krusche & Partner PartG
  *
  */
-
-import org.graphframes.GraphFrame
 
 class Centrality {
   /**

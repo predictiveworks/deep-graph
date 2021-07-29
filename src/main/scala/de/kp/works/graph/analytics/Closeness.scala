@@ -1,4 +1,4 @@
-package de.kp.works.graph
+package de.kp.works.graph.analytics
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -18,12 +18,9 @@ package de.kp.works.graph
  *
  */
 
-import de.kp.works.spark.Session
-import ml.sparkling.graph.api.operators.measures.VertexMeasureConfiguration
 import ml.sparkling.graph.operators.measures.vertex.closeness.{Closeness => ClosenessML}
 import org.apache.spark.graphx._
-import org.apache.spark.sql.types._
-import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import org.apache.spark.sql.{DataFrame, Row}
 
 import scala.reflect.ClassTag
 
@@ -38,24 +35,14 @@ import scala.reflect.ClassTag
  * (VertexId, VertexId, Numeric).
  *
  */
-class Closeness[VD: ClassTag, ED: ClassTag] {
-
-  private val session: SparkSession = Session.getSession
-
-  private val schema = StructType(Array(
-    StructField("vid", LongType, nullable = false),
-    StructField("closeness", DoubleType, nullable = false)
-  ))
-
-  private var vertexMeasureConfiguration: VertexMeasureConfiguration[VD, ED] =
-    VertexMeasureConfiguration()
-
-  def setVertexMeasureCfg(value:VertexMeasureConfiguration[VD, ED]): Closeness[VD, ED] = {
-    vertexMeasureConfiguration = value
-    this
-  }
-
+class Closeness[VD: ClassTag, ED: ClassTag]
+  extends BaseAnalytics[Closeness[VD, ED], VD, ED] {
   /**
+   * Closeness centrality measure is defined as inverted sum
+   * of distances (d(y,x)) from given node to all other nodes.
+   *
+   * Distance is defined as length of shortest path.
+   *
    * Measure can be understood as how far away from other nodes
    * given node is located.
    */
@@ -67,14 +54,14 @@ class Closeness[VD: ClassTag, ED: ClassTag] {
     val result:Graph[Double, ED] = ClosenessML.compute(g, vertexMeasureConfiguration)
     /*
      * The result of this method represents a VertexRDD
-     * with (VertexId, Double (distance)
+     * with (VertexId, Double (closeness)
      */
     val rdd = result.vertices
-      .map{case(vid:VertexId, distance:Double) =>
-        Row(vid.toLong, distance)
+      .map{case(vid:VertexId, measure:Double) =>
+        Row(vid.toLong, measure)
       }
 
-    session.createDataFrame(rdd, schema)
+    session.createDataFrame(rdd, measureSchema)
 
   }
 }

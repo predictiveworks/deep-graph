@@ -72,7 +72,7 @@ class CurrentFlowBC[VD, ED: ClassTag](graph: Graph[VD, ED], flowGenerator: FlowG
 
   def getNumberOfFlows(g: Graph[CFBCVertex, _]): PartitionID = g.vertices.map({ case (_, v) => v.vertexFlows.length }).reduce(_ + _)
 
-  def getNumberOfFetureFlows(g: Graph[CFBCVertex, _]): PartitionID = g.vertices.map({ case (_, v) => v.availableSamples.length }).reduce(_ + _)
+  def getNumberOfFeatureFlows(g: Graph[CFBCVertex, _]): PartitionID = g.vertices.map({ case (_, v) => v.availableSamples.length }).reduce(_ + _)
 
   def getNumOfActiveVertices(g: Graph[CFBCVertex, _]): VertexId = g.vertices.filter({ case (id, v) => v.isFinalized(k) } ).count()
 
