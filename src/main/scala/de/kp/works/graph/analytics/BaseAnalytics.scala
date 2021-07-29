@@ -27,6 +27,12 @@ trait BaseAnalytics[T, VD, ED] {
 
   protected val session: SparkSession = Session.getSession
 
+  protected val hitsSchema: StructType = StructType(Array(
+    StructField("vid", LongType, nullable = false),
+    StructField("authority", DoubleType, nullable = false),
+    StructField("hub", DoubleType, nullable = false)
+  ))
+
   protected val measureSchema: StructType = StructType(Array(
     StructField("vid", LongType, nullable = false),
     StructField("measure", DoubleType, nullable = false)
