@@ -1,0 +1,211 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>de.kp.works</groupId>
+  <artifactId>deep-graph</artifactId>
+  <version>1.0.0</version>
+
+  <name>DeepGraph</name>
+  <description></description>
+
+  <inceptionYear>2021</inceptionYear>
+  <licenses>
+  </licenses>
+
+  <properties>
+
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <encoding>UTF-8</encoding>
+    <!--
+    The Scala version that has been used for testing
+    in 2.11.12
+    -->
+    <scala.binary.version>2.11</scala.binary.version>
+  	<spark.version>2.4.7</spark.version>
+
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>spark-packages</id>
+      <name>Spark Packages Repository</name>
+      <url>https://repos.spark-packages.org</url>
+    </repository>
+  </repositories>
+  <dependencies>
+
+	<!-- AKKA
+	-->
+	<dependency>
+	  <groupId>com.typesafe.akka</groupId>
+	  <artifactId>akka-http_${scala.binary.version}</artifactId>
+	  <version>10.0.12</version>
+	</dependency>
+
+	<dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-stream_${scala.binary.version}</artifactId>
+      <version>2.5.6</version>
+	</dependency>
+
+    <!-- JSON 
+    -->
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.8.6</version>
+    </dependency>
+
+	<!-- APACHE SPARK MLLIB
+	-->
+	<dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-mllib_${scala.binary.version}</artifactId>
+      <version>${spark.version}</version>
+	</dependency>
+
+	<!-- APACHE SPARK SQL
+	-->
+	<dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-sql_${scala.binary.version}</artifactId>
+      <version>${spark.version}</version>
+	</dependency>
+
+    <!-- GRAPHFRAMES
+
+    This library is not available on Maven central (see repository).
+
+    -->
+    <dependency>
+      <groupId>graphframes</groupId>
+      <artifactId>graphframes</artifactId>
+      <version>0.8.1-spark2.4-s_${scala.binary.version}</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <sourceDirectory>src/main/scala</sourceDirectory>
+    <testSourceDirectory>src/test/scala</testSourceDirectory>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>2.1.2</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>1.8</source>
+            <target>1.8</target>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>
+              </excludes>
+            </filter>
+          </filters>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <version>4.4.0</version>
+        <configuration>
+          <scalaVersion>2.11.12</scalaVersion>
+          <args>
+            <arg>-unchecked</arg>
+            <arg>-deprecation</arg>
+          </args>
+          <addJavacArgs>-deprecation</addJavacArgs>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+        <executions>
+          <execution>
+            <id>scala-compile-first</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>add-source</goal>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>scala-test-compile</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.scalatest</groupId>
+        <artifactId>scalatest-maven-plugin</artifactId>
+        <version>1.0</version>
+        <configuration>
+          <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+          <junitxml>.</junitxml>
+          <filereports>WDF TestSuite.txt</filereports>
+        </configuration>
+        <executions>
+          <execution>
+            <id>test</id>
+            <goals>
+              <goal>test</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <organization>
+  	<name>Dr. Krusche &amp; Partner PartG</name>
+  	<url>https://www.dr-kruscheundpartner.de</url>
+  </organization>
+</project>
