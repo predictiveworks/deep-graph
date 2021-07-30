@@ -17,6 +17,7 @@ package de.kp.works.spark
  * @author Stefan Krusche, Dr. Krusche & Partner PartG
  * 
  */
+import de.kp.works.conf.Conf
 import org.apache.spark._
 import org.apache.spark.sql._
 
@@ -29,7 +30,12 @@ object Session {
    * Analytics-Zoo additional context with ease.
    */
   def initialize():Unit = {
-    
+    /*
+     * STEP #1: Initialize global configuration; this approach
+     * requires an (internal) configuration file
+     */
+    Conf.init()
+
     val conf = new SparkConf()
       .setAppName("VantageFrames")
       .setMaster("local[4]")
@@ -42,6 +48,9 @@ object Session {
     
 
     val sparkContext = new SparkContext(conf)
+
+    val checkpointDir = Conf.getSparkCfg.getString("checkpointDir")
+    sparkContext.setCheckpointDir(checkpointDir)
 
     val spark = new SQLContext(sparkContext).sparkSession
     spark.sparkContext.setLogLevel("ERROR")

@@ -19,31 +19,30 @@ package de.kp.works.graph.analytics
  */
 
 import de.kp.works.spark.Session
+import ml.sparkling.graph.api.operators.IterativeComputation.wholeGraphBucket
 import ml.sparkling.graph.api.operators.measures.VertexMeasureConfiguration
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.types.{DoubleType, LongType, StructField, StructType}
+import org.apache.spark.sql.types._
 
-trait BaseAnalytics[T, VD, ED] {
+trait BaseAnalytics[T] {
 
   protected val session: SparkSession = Session.getSession
 
   protected val hitsSchema: StructType = StructType(Array(
-    StructField("vid", LongType, nullable = false),
+    StructField("vertex", LongType, nullable = false),
     StructField("authority", DoubleType, nullable = false),
     StructField("hub", DoubleType, nullable = false)
   ))
 
   protected val measureSchema: StructType = StructType(Array(
-    StructField("vid", LongType, nullable = false),
+    StructField("vertex", LongType, nullable = false),
     StructField("measure", DoubleType, nullable = false)
   ))
 
-  protected var vertexMeasureConfiguration: VertexMeasureConfiguration[VD, ED] =
-    VertexMeasureConfiguration()
-
-  def setVertexMeasureCfg(value:VertexMeasureConfiguration[VD, ED]): T = {
-    vertexMeasureConfiguration = value
-    this.asInstanceOf[T]
-  }
+  protected val neighborsSchema: StructType = StructType(Array(
+    StructField("src", LongType, nullable = false),
+    StructField("dst", LongType, nullable = false),
+    StructField("measure", IntegerType, nullable = false)
+  ))
 
 }

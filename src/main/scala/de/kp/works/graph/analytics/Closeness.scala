@@ -18,6 +18,8 @@ package de.kp.works.graph.analytics
  *
  */
 
+import ml.sparkling.graph.api.operators.IterativeComputation.wholeGraphBucket
+import ml.sparkling.graph.api.operators.measures.VertexMeasureConfiguration
 import ml.sparkling.graph.operators.measures.vertex.closeness.{Closeness => ClosenessML}
 import org.apache.spark.graphx._
 import org.apache.spark.sql.{DataFrame, Row}
@@ -36,7 +38,16 @@ import scala.reflect.ClassTag
  *
  */
 class Closeness[VD: ClassTag, ED: ClassTag]
-  extends BaseAnalytics[Closeness[VD, ED], VD, ED] {
+  extends BaseAnalytics[Closeness[VD, ED]] {
+
+  private var vertexMeasureConfiguration: VertexMeasureConfiguration[VD, ED] =
+    new VertexMeasureConfiguration[VD, ED]( wholeGraphBucket[VD, ED])
+
+  def setVertexMeasureCfg(value:VertexMeasureConfiguration[VD, ED]): Closeness[VD, ED] = {
+    vertexMeasureConfiguration = value
+    this
+  }
+
   /**
    * Closeness centrality measure is defined as inverted sum
    * of distances (d(y,x)) from given node to all other nodes.

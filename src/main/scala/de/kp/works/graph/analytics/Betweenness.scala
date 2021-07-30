@@ -18,16 +18,15 @@ package de.kp.works.graph.analytics
  *
  */
 
+import ml.sparkling.graph.operators.measures.vertex.betweenness.edmonds.EdmondsBC
+import ml.sparkling.graph.operators.measures.vertex.betweenness.hua.HuaBC
 import org.apache.spark.graphx.{Graph, VertexId, VertexRDD}
 import org.apache.spark.sql.{DataFrame, Row}
 
 import scala.reflect.ClassTag
-import ml.sparkling.graph.operators.measures.vertex.betweenness.edmonds.EdmondsBC
-import ml.sparkling.graph.operators.measures.vertex.betweenness.hua.HuaBC
-import org.apache.spark.sql.types.{DoubleType, LongType, StructField, StructType}
 
 class Betweenness[VD: ClassTag, ED: ClassTag]
-  extends BaseAnalytics[Closeness[VD, ED], VD, ED] {
+  extends BaseAnalytics[Closeness[VD, ED]] {
 
   def transform(g:Graph[VD, ED], option:String="edmonds")(implicit num:Numeric[ED]):DataFrame = {
 

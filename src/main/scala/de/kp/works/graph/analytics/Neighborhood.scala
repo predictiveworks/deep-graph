@@ -18,6 +18,8 @@ package de.kp.works.graph.analytics
  *
  */
 
+import ml.sparkling.graph.api.operators.IterativeComputation.wholeGraphBucket
+import ml.sparkling.graph.api.operators.measures.VertexMeasureConfiguration
 import ml.sparkling.graph.operators.measures.vertex.NeighborhoodConnectivity
 import org.apache.spark.graphx.{Graph, VertexId}
 import org.apache.spark.sql.{DataFrame, Row}
@@ -25,7 +27,15 @@ import org.apache.spark.sql.{DataFrame, Row}
 import scala.reflect.ClassTag
 
 class Neighborhood[VD: ClassTag, ED: ClassTag]
-  extends BaseAnalytics[Closeness[VD, ED], VD, ED] {
+  extends BaseAnalytics[Closeness[VD, ED]] {
+
+  private var vertexMeasureConfiguration: VertexMeasureConfiguration[VD, ED] =
+    new VertexMeasureConfiguration[VD, ED]( wholeGraphBucket[VD, ED])
+
+  def setVertexMeasureCfg(value:VertexMeasureConfiguration[VD, ED]): Neighborhood[VD, ED] = {
+    vertexMeasureConfiguration = value
+    this
+  }
 
   def transform(g:Graph[VD, ED])(implicit num:Numeric[ED]):DataFrame = {
     /**
