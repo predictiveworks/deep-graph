@@ -34,6 +34,11 @@ trait BaseAnalytics[T] {
     StructField("hub", DoubleType, nullable = false)
   ))
 
+  protected val labelSchema: StructType = StructType(Array(
+    StructField("vertex", LongType, nullable = false),
+    StructField("label", LongType, nullable = false)
+  ))
+
   protected val measureSchema: StructType = StructType(Array(
     StructField("vertex", LongType, nullable = false),
     StructField("measure", DoubleType, nullable = false)

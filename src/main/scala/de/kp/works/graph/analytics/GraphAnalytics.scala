@@ -274,6 +274,71 @@ object GraphAnalytics {
      */
     result
   }
+
+  /**
+   * This method runs the GraphFrame Label Propagation Algorithm
+   * for detecting communities in networks.
+   *
+   * Each node in the network is initially assigned to its own community.
+   * At every super step, nodes send their community affiliation to all
+   * neighbors and update their state to the mode community affiliation
+   * of incoming messages.
+   *
+   * LPA is a standard community detection algorithm for graphs. It is very
+   * inexpensive computationally, although (1) convergence is not guaranteed
+   * and (2) one can end up with trivial solutions (all nodes are identified
+   * into a single community).
+   */
+  def detectCommunities(graphframe:GraphFrame, iterations:Int):DataFrame = {
+
+    val result = graphframe.labelPropagation.maxIter(iterations).run()
+    /*
+     * The algorithm assigns a `label` (Long) to each vertex
+     * of the provided graph. This enables a subsequent stage
+     * to organize vertices in communities.
+     */
+    result
+
+  }
+
+  def detectCommunities(graphframe:GraphFrame, epsilon:Double=0.1):DataFrame = {
+    /*
+     * This method leverages the GraphX implementation of Community
+     * Detection as an alternative approach.
+     *
+     * STEP #1: As a first step, the GraphFrames representation of the
+     * graph is transformed into the GraphX format.
+     *
+     * Note, GraphFrames automatically ensures that networks whose `id`
+     * columns does not contain numeric identifiers are transformed.
+     */
+    val g:Graph[Row, Row] = graphframe.toGraphX
+   /*
+     * STEP #2: Apply the community operator.
+     */
+    val operator = new Community[Row, Row]()
+    val result = operator.detectCommunities(g, epsilon)
+    /*
+     * STEP #3: Extend vertex schema and join with the operator
+     * result to provide a vertex dataframe that is enriched with
+     * the detected community label.
+     */
+    val v = g.vertices
+
+    val schema = StructType(
+      Array(StructField("vertex", LongType, nullable = false)) ++
+        graphframe.vertices.schema.fields)
+
+    val vertices = session.createDataFrame(v.map(vertex => {
+      val values = Seq(vertex._1.toLong) ++ vertex._2.toSeq
+      Row.fromSeq(values)
+    }), schema)
+
+    vertices.join(result, Seq("vertex"))
+      .drop("vertex")
+
+  }
+
   /**
    * Like degree centrality, EigenCentrality measures a node’s influence based on the number
    * of links it has to other nodes in the network. EigenCentrality then goes a step further
@@ -554,9 +619,6 @@ object GraphAnalytics {
     vertices.join(result, Seq("vertex"))
       .drop("vertex")
       .withColumnRenamed("measure", "neighborhood")
-
-  }
-  def pscan(graphframe:GraphFrame, epsilon:Double=0.1):Unit = {
 
   }
   /**

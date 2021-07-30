@@ -34,9 +34,7 @@ object TransformTest {
 
     // Create a GraphFrame
     val g = GraphFrame(v, e)
-    val result = GraphAnalytics.modularity(g)
-
-    println(result)
+    val result = GraphAnalytics.detectCommunities(g)
 
   }
 }
