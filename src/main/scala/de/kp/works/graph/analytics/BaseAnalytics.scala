@@ -40,8 +40,8 @@ trait BaseAnalytics[T] {
   ))
 
   protected val neighborsSchema: StructType = StructType(Array(
-    StructField("src", LongType, nullable = false),
-    StructField("dst", LongType, nullable = false),
+    StructField("s_vertex", LongType, nullable = false),
+    StructField("d_vertex", LongType, nullable = false),
     StructField("measure", IntegerType, nullable = false)
   ))
 

@@ -34,9 +34,9 @@ object TransformTest {
 
     // Create a GraphFrame
     val g = GraphFrame(v, e)
-    val result = GraphAnalytics.betweenness(g)
+    val result = GraphAnalytics.modularity(g)
 
-    result.show
+    println(result)
 
   }
 }

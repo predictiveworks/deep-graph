@@ -46,7 +46,7 @@ class Clustering[VD: ClassTag, ED: ClassTag]
     val result:Graph[Double, ED] = LocalClustering.compute(g, vertexMeasureConfiguration)
     /*
      * The result of this method represents a VertexRDD
-     * with (VertexId, Double (embeddedness)
+     * with (VertexId, Double (measure)
      */
     val rdd = result.vertices
       .map{case(vid:VertexId, measure:Double) =>
