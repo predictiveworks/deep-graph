@@ -28,6 +28,12 @@ trait BaseAnalytics[T] {
 
   protected val session: SparkSession = Session.getSession
 
+  protected val adamicAdarSchema: StructType = StructType(Array(
+    StructField("s_vertex", LongType, nullable = false),
+    StructField("d_vertex", LongType, nullable = false),
+    StructField("measure", IntegerType, nullable = false)
+  ))
+
   protected val hitsSchema: StructType = StructType(Array(
     StructField("vertex", LongType, nullable = false),
     StructField("authority", DoubleType, nullable = false),

@@ -20,6 +20,8 @@ package de.kp.works.graph.analytics
 
 import de.kp.works.spark.Session
 import org.apache.spark.graphx.{Edge, Graph}
+import org.apache.spark.ml.linalg.Vector
+import org.apache.spark.sql.functions.{col, explode, udf}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
 import org.graphframes.GraphFrame
@@ -27,6 +29,48 @@ import org.graphframes.GraphFrame
 object GraphAnalytics {
 
   private val session = Session.getSession
+
+  /**
+   * Adamic/Adar measures is defined as inverted sum
+   * of degrees of common neighbours for given two vertices.
+   */
+  def adamicAdar(graphframe:GraphFrame):DataFrame = {
+    /*
+     * This method leverages the GraphX implementation as Adamic/Adar
+     * is currently not supported by GraphFrames.
+     *
+     * STEP #1: As a first step, the GraphFrames representation of the
+     * graph is transformed into the GraphX format.
+     *
+     * Note, GraphFrames automatically ensures that networks whose `id`
+     * columns does not contain numeric identifiers are transformed.
+     */
+    val g:Graph[Row, Row] = graphframe.toGraphX
+    /*
+     * STEP #2: Apply the AdamicAdar operator.
+     */
+    val operator = new AdamicAdar[Row, Row]()
+    val result = operator.transform(g)
+    /*
+     * STEP #3: Extend edge schema and join with the operator
+     * result to provide an edge dataframe that is enriched with
+     * the Adamic/Adar measure.
+     */
+    val schema = StructType(
+      Array(
+        StructField("s_vertex", LongType, nullable = false),
+        StructField("d_vertex", LongType, nullable = false)) ++
+        graphframe.edges.schema.fields)
+
+    val edges = session.createDataFrame(g.edges.map(edge => {
+      val values = Seq(edge.srcId, edge.dstId) ++ edge.attr.toSeq
+      Row.fromSeq(values)
+    }), schema)
+
+    edges.join(result, Seq("s_vertex", "d_vertex"))
+      .drop("s_vertex", "d_vertex")
+
+  }
   /**
    * Betweenness centrality measures the number of times a node lies on the
    * shortest path between other nodes.
@@ -69,7 +113,7 @@ object GraphAnalytics {
      * a 2-column dataframe, with `vertex` and `measure`.
      */
     val operator = new Betweenness[Row, Int]()
-    val result = operator.transform(sample)
+    val result = operator.transform(sample, `type`)
     /*
      * STEP #3: Extend vertex schema and join with the operator
      * result to provide a vertex dataframe that is enriched with
@@ -86,7 +130,6 @@ object GraphAnalytics {
 
     vertices.join(result, Seq("vertex"))
       .drop("vertex")
-      .withColumnRenamed("measure", "betweenness")
 
   }
   /**
@@ -147,7 +190,6 @@ object GraphAnalytics {
 
     vertices.join(result, Seq("vertex"))
       .drop("vertex")
-      .withColumnRenamed("measure", "closeness")
 
   }
   /**
@@ -199,7 +241,6 @@ object GraphAnalytics {
 
     vertices.join(result, Seq("vertex"))
       .drop("vertex")
-      .withColumnRenamed("measure", "clustering")
 
   }
   /**
@@ -208,8 +249,8 @@ object GraphAnalytics {
    */
   def commonNeighbors(graphframe:GraphFrame):DataFrame = {
     /*
-     * This method leverages the GraphX implementation as Clustering
-     * is currently not supported by GraphFrames.
+     * This method leverages the GraphX implementation as Common
+     * Neighbors is currently not supported by GraphFrames.
      *
      * STEP #1: As a first step, the GraphFrames representation of the
      * graph is transformed into the GraphX format.
@@ -242,7 +283,6 @@ object GraphAnalytics {
 
     edges.join(result, Seq("s_vertex", "d_vertex"))
       .drop("s_vertex", "d_vertex")
-      .withColumnRenamed("measure", "neighbors")
 
   }
   /**
@@ -338,7 +378,6 @@ object GraphAnalytics {
       .drop("vertex")
 
   }
-
   /**
    * Like degree centrality, EigenCentrality measures a node’s influence based on the number
    * of links it has to other nodes in the network. EigenCentrality then goes a step further
@@ -403,7 +442,6 @@ object GraphAnalytics {
 
     vertices.join(result, Seq("vertex"))
       .drop("vertex")
-      .withColumnRenamed("measure", "importance")
 
   }
   /**
@@ -455,7 +493,6 @@ object GraphAnalytics {
 
     vertices.join(result, Seq("vertex"))
       .drop("vertex")
-      .withColumnRenamed("measure", "embeddedness")
 
   }
   /**
@@ -618,7 +655,6 @@ object GraphAnalytics {
 
     vertices.join(result, Seq("vertex"))
       .drop("vertex")
-      .withColumnRenamed("measure", "neighborhood")
 
   }
   /**
@@ -636,7 +672,85 @@ object GraphAnalytics {
    * PageRank is famously one of the ranking algorithms behind the original Google search engine (the ‘Page’
    * part of its name comes from creator and Google founder, Sergei Brin).
    */
-  def pageRank():Unit = {
-    throw new Exception("Not implemented yet.")
+  def pageRank(graphframe:GraphFrame, maxIter:Int = 20, resetProbability:Double=0.15):Unit = {
+
+    val rankGraph = graphframe
+      .pageRank
+      .resetProbability(resetProbability)
+      .maxIter(maxIter)
+      .run()
+    /*
+     * This method restricts the result to the vertices of the graph
+     */
+    rankGraph.vertices
+
   }
+
+  /**
+   * This method retrieves the pagerank for each vertex in relation
+   * to the provided landmarks.
+   */
+  def personalizedPageRank(graphframe:GraphFrame, landmarks:Array[Any], maxIter:Int = 20, resetProbability:Double=0.15): DataFrame = {
+    /*
+     * Run personalised page rank with the landmarks
+     * provided and retrieve connections importance
+     * relative to the landmarks.
+     */
+    val rankGraph = graphframe
+      .parallelPersonalizedPageRank
+      .resetProbability(resetProbability)
+      .maxIter(maxIter)
+      .sourceIds(landmarks)
+      .run()
+
+    /* Determine landmark datatype */
+    val landmark = landmarks(0)
+    var landmarkType:String = null
+
+    landmark match {
+      case _: String => landmarkType = "String"
+      case _: Int => landmarkType = "Int"
+      case _: Long => landmarkType = "Long"
+      case _ => throw new Exception("Landmark datatype is not supported.")
+    }
+
+    /* Compute importance */
+
+    def importances_udf(landmarks:Array[Any], landmarkType:String) =
+      udf((pageRank: Vector) => {
+        pageRank.toArray.zipWithIndex.map({ case (importance, id) =>
+          val landmark = landmarks(id)
+          if (landmarkType == "Int")
+            (landmark.asInstanceOf[Int].toString, importance)
+
+          else if (landmarkType == "Long")
+            (landmark.asInstanceOf[Long].toString, importance)
+
+          else
+            (landmark.asInstanceOf[String], importance)
+        })
+      })
+
+    val dropCols = Seq("importances", "importance", "pageranks")
+    /*
+     * This method restricts the result to the vertices of the graph
+     */
+    val output = rankGraph.vertices
+      .withColumn("importances", importances_udf(landmarks, landmarkType)(col("pageranks")))
+      .withColumn("importance", explode(col("importances")))
+      .withColumn("reference", col("importance._1"))
+      .withColumn("pagerank",  col("importance._2"))
+      .drop(dropCols: _*)
+
+    if (landmarkType == "Int")
+      output.withColumn("reference", col("reference").cast(IntegerType))
+
+    else if (landmarkType == "Long")
+      output.withColumn("reference", col("reference").cast(LongType))
+
+    else
+      output.withColumn("reference", col("reference").cast(StringType))
+
+  }
+
 }

@@ -20,7 +20,6 @@ object TransformTest {
       ("g", "Gabby", 60)
     )).toDF("id", "name", "age")
 
-    // Edge DataFrame
     val e = sqlc.createDataFrame(List(
       ("a", "b", "friend"),
       ("b", "c", "follow"),
@@ -32,9 +31,13 @@ object TransformTest {
       ("a", "e", "friend")
     )).toDF("src", "dst", "relationship")
 
-    // Create a GraphFrame
     val g = GraphFrame(v, e)
-    val result = GraphAnalytics.detectCommunities(g)
+    /*
+     * GraphAnalytics use case here
+     */
+    val landmarks = Array("a", "b").map(_.asInstanceOf[Any])
+    val result = GraphAnalytics.pageRank(g)
 
+    //result.show
   }
 }

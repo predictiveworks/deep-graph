@@ -11,7 +11,7 @@ import scala.reflect.ClassTag
 /**
  * Created by Roman Bartusiak (roman.bartusiak@pwr.edu.pl http://riomus.github.io).
  */
-object AdamicAdar  extends EdgeMeasure[Double,NeighboursMap]{
+object AdamicAdar extends EdgeMeasure[Double,NeighboursMap]{
 
   def computeValue(srcAttr:NeighboursMap,dstAttr:NeighboursMap,treatAsUndirected:Boolean=false):Double={
     val commonNeighbours=intersect(srcAttr.keySet(),dstAttr.keySet())

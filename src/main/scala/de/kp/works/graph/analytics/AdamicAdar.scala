@@ -1,4 +1,11 @@
 package de.kp.works.graph.analytics
+
+import ml.sparkling.graph.operators.measures.edge.{AdamicAdar => AdamicAdarML}
+import org.apache.spark.graphx.Graph
+import org.apache.spark.sql.{DataFrame, Row}
+
+import scala.reflect.ClassTag
+
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -18,27 +25,20 @@ package de.kp.works.graph.analytics
  *
  */
 
-import ml.sparkling.graph.operators.measures.edge.CommonNeighbours
-import org.apache.spark.graphx.{Graph, VertexId}
-import org.apache.spark.sql.{DataFrame, Row}
-
-import scala.reflect.ClassTag
-
-class CommonNeighbors[VD: ClassTag, ED: ClassTag]
+class AdamicAdar[VD: ClassTag, ED: ClassTag]
   extends BaseAnalytics[Closeness[VD, ED]] {
 
   def transform(g:Graph[VD, ED], undirected:Boolean = false):DataFrame = {
     /**
-     * Common Neighbours measure is defined as the
-     * number of common neighbours of two given vertices.
+     * Adamic/Adar measures is defined as inverted sum of degrees
+     * of common neighbours for given two vertices.
      */
-    val result = CommonNeighbours.computeWithPreprocessing(g, undirected)
+    val result = AdamicAdarML.computeWithPreprocessing(g, undirected)
     val rdd = result.edges.map(edge => {
       Row(edge.srcId, edge.dstId, edge.attr)
     })
 
-    session.createDataFrame(rdd, neighborsSchema)
-
+    session.createDataFrame(rdd, adamicAdarSchema)
   }
 
 }
