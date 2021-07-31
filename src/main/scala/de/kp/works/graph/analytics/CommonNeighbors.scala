@@ -19,13 +19,13 @@ package de.kp.works.graph.analytics
  */
 
 import ml.sparkling.graph.operators.measures.edge.CommonNeighbours
-import org.apache.spark.graphx.{Graph, VertexId}
+import org.apache.spark.graphx.Graph
 import org.apache.spark.sql.{DataFrame, Row}
 
 import scala.reflect.ClassTag
 
 class CommonNeighbors[VD: ClassTag, ED: ClassTag]
-  extends BaseAnalytics[Closeness[VD, ED]] {
+  extends BaseAnalytics {
 
   def transform(g:Graph[VD, ED], undirected:Boolean = false):DataFrame = {
     /**

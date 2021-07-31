@@ -1,11 +1,4 @@
 package de.kp.works.graph.analytics
-
-import ml.sparkling.graph.operators.measures.edge.{AdamicAdar => AdamicAdarML}
-import org.apache.spark.graphx.Graph
-import org.apache.spark.sql.{DataFrame, Row}
-
-import scala.reflect.ClassTag
-
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -25,8 +18,14 @@ import scala.reflect.ClassTag
  *
  */
 
+import ml.sparkling.graph.operators.measures.edge.{AdamicAdar => AdamicAdarML}
+import org.apache.spark.graphx.Graph
+import org.apache.spark.sql.{DataFrame, Row}
+
+import scala.reflect.ClassTag
+
 class AdamicAdar[VD: ClassTag, ED: ClassTag]
-  extends BaseAnalytics[Closeness[VD, ED]] {
+  extends BaseAnalytics {
 
   def transform(g:Graph[VD, ED], undirected:Boolean = false):DataFrame = {
     /**

@@ -25,7 +25,7 @@ import org.apache.spark.sql.{DataFrame, Row}
 import scala.reflect.ClassTag
 
 class Community[VD: ClassTag, ED: ClassTag]
-  extends BaseAnalytics[Closeness[VD, ED]] {
+  extends BaseAnalytics {
 
   def detectCommunities(g:Graph[VD, ED]): DataFrame = {
 

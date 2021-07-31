@@ -18,6 +18,7 @@ package de.kp.works.graph.analytics
  *
  */
 
+import de.kp.works.graph.analytics.GraphAnalytics.session
 import de.kp.works.spark.Session
 import org.apache.spark.graphx.{Edge, Graph}
 import org.apache.spark.ml.linalg.Vector
@@ -577,6 +578,52 @@ object GraphAnalytics {
         graphframe.vertices.schema.fields)
 
     val vertices = session.createDataFrame(v.map(vertex => {
+      val values = Seq(vertex._1.toLong) ++ vertex._2.toSeq
+      Row.fromSeq(values)
+    }), schema)
+
+    vertices.join(result, Seq("vertex"))
+      .drop("vertex")
+
+  }
+  def louvain(graphframe:GraphFrame, minProgress:Int, progressCounter:Int):DataFrame = {
+    /*
+     * This method leverages the GraphX implementation as Louvain
+     * Community Detection is currently not supported by GraphFrames.
+     *
+     * STEP #1: As a first step, the GraphFrames representation of the
+     * graph is transformed into the GraphX format.
+     *
+     * Note, GraphFrames automatically ensures that networks whose `id`
+     * columns does not contain numeric identifiers are transformed.
+     */
+    val g:Graph[Row, Row] = graphframe.toGraphX
+    /*
+     * The Louvain implementation requires an `edge` representation that
+     * is a Long.
+     *
+     * As the community detection does not affect any edge, we streamline
+     * the edge attributes to a constant value
+     */
+    val v = g.vertices.map(vertex => (vertex._1, "*"))
+    val e = g.edges.map(edge => Edge(edge.srcId, edge.dstId, 1L))
+
+    val sample = Graph(v, e)
+    /*
+     * STEP #2: Apply the Louvain operator.
+     */
+    val operator = new Louvain[String, Long]
+    val result = operator.transform(sample)
+    /*
+     * STEP #3: Extend vertex schema and join with the operator
+     * result to provide a vertex dataframe that is enriched with
+     * the neighborhood measure.
+     */
+    val schema = StructType(
+      Array(StructField("vertex", LongType, nullable = false)) ++
+        graphframe.vertices.schema.fields)
+
+    val vertices = session.createDataFrame(g.vertices.map(vertex => {
       val values = Seq(vertex._1.toLong) ++ vertex._2.toSeq
       Row.fromSeq(values)
     }), schema)

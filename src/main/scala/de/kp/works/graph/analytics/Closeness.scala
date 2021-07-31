@@ -38,7 +38,7 @@ import scala.reflect.ClassTag
  *
  */
 class Closeness[VD: ClassTag, ED: ClassTag]
-  extends BaseAnalytics[Closeness[VD, ED]] {
+  extends BaseAnalytics {
 
   private var vertexMeasureConfiguration: VertexMeasureConfiguration[VD, ED] =
     new VertexMeasureConfiguration[VD, ED]( wholeGraphBucket[VD, ED])

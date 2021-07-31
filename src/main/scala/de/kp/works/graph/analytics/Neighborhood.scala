@@ -27,7 +27,7 @@ import org.apache.spark.sql.{DataFrame, Row}
 import scala.reflect.ClassTag
 
 class Neighborhood[VD: ClassTag, ED: ClassTag]
-  extends BaseAnalytics[Closeness[VD, ED]] {
+  extends BaseAnalytics {
 
   private var vertexMeasureConfiguration: VertexMeasureConfiguration[VD, ED] =
     new VertexMeasureConfiguration[VD, ED]( wholeGraphBucket[VD, ED])

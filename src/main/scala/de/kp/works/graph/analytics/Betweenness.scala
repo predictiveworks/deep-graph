@@ -26,7 +26,7 @@ import org.apache.spark.sql.{DataFrame, Row}
 import scala.reflect.ClassTag
 
 class Betweenness[VD: ClassTag, ED: ClassTag]
-  extends BaseAnalytics[Closeness[VD, ED]] {
+  extends BaseAnalytics {
 
   def transform(g:Graph[VD, ED], option:String="edmonds")(implicit num:Numeric[ED]):DataFrame = {
 

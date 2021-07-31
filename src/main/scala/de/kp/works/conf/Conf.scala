@@ -1,7 +1,4 @@
 package de.kp.works.conf
-
-import com.typesafe.config.{Config, ConfigFactory}
-
 /*
  * Copyright (c) 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -20,6 +17,8 @@ import com.typesafe.config.{Config, ConfigFactory}
  * @author Stefan Krusche, Dr. Krusche & Partner PartG
  *
  */
+
+import com.typesafe.config.{Config, ConfigFactory}
 
 object Conf {
 

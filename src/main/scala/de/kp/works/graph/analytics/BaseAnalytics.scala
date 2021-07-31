@@ -19,12 +19,10 @@ package de.kp.works.graph.analytics
  */
 
 import de.kp.works.spark.Session
-import ml.sparkling.graph.api.operators.IterativeComputation.wholeGraphBucket
-import ml.sparkling.graph.api.operators.measures.VertexMeasureConfiguration
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.types._
+import org.apache.spark.sql.types.{StructField, _}
 
-trait BaseAnalytics[T] {
+trait BaseAnalytics {
 
   protected val session: SparkSession = Session.getSession
 
@@ -43,6 +41,11 @@ trait BaseAnalytics[T] {
   protected val labelSchema: StructType = StructType(Array(
     StructField("vertex", LongType, nullable = false),
     StructField("label", LongType, nullable = false)
+  ))
+
+  protected val louvainSchema: StructType = StructType(Array(
+    StructField("vertex", LongType, nullable = false),
+    StructField("community", LongType, nullable = false)
   ))
 
   protected val measureSchema: StructType = StructType(Array(

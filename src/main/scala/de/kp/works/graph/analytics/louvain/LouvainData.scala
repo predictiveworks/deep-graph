@@ -1,4 +1,4 @@
-package de.kp.works.graph.analytics
+package de.kp.works.graph.analytics.louvain
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -18,24 +18,18 @@ package de.kp.works.graph.analytics
  *
  */
 
-import ml.sparkling.graph.operators.measures.graph.FreemanCentrality
-import org.apache.spark.graphx.Graph
+/**
+ * Louvain vertex state, contains all information
+ * needed for louvain community detection.
+ */
+class LouvainData(
+    var name: String,
+    var community: Long,
+    var communityName: String,
+    var communitySigmaTot: Long,
+    var internalWeight: Long,
+    var nodeWeight: Long, var changed: Boolean) extends Serializable {
 
-import scala.reflect.ClassTag
-
-class Freeman[VD: ClassTag, ED: ClassTag]
-  extends BaseAnalytics {
-
-  def transform(g: Graph[VD, ED]): Double = {
-    /**
-     * Freeman’s centrality tells us how heterogeneous the
-     * degree centrality is among the vertices of the network.
-     *
-     * For a start network, we will get a value 1.
-     */
-    val centrality = FreemanCentrality.compute(g)
-    centrality
-
-  }
+  def this() = this(null, -1L, null, 0L, 0L, 0L, false)
 
 }
