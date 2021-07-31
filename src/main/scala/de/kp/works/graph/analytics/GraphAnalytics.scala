@@ -21,6 +21,7 @@ package de.kp.works.graph.analytics
 import de.kp.works.spark.Session
 import org.apache.spark.graphx.{Edge, Graph}
 import org.apache.spark.ml.linalg.Vector
+import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{col, explode, udf}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
@@ -285,6 +286,15 @@ object GraphAnalytics {
       .drop("s_vertex", "d_vertex")
 
   }
+  def connectedComponents(graphframe:GraphFrame):DataFrame = {
+
+    val result = graphframe
+      .connectedComponents
+      .run
+
+    result
+
+   }
   /**
    * Degree centrality assigns an importance score based simply on the
    * number of (in- and outgoing) links held by each node.
@@ -527,6 +537,7 @@ object GraphAnalytics {
    * proportional to sum of hub score of its neighbours.
    */
   def hits(graphframe:GraphFrame):DataFrame = {
+
     /*
      * This method leverages the GraphX implementation as Hits Score
      * is currently not supported by GraphFrames.
@@ -753,4 +764,65 @@ object GraphAnalytics {
 
   }
 
+  def shortestPaths(graphframe:GraphFrame, landmarks:Array[Any]):DataFrame = {
+
+    val pathGraph = graphframe.shortestPaths
+      .landmarks(landmarks)
+      .run
+
+    /* Determine landmark datatype */
+    val landmark = landmarks(0)
+    var landmarkType:String = null
+
+    landmark match {
+      case _: String => landmarkType = "String"
+      case _: Int => landmarkType = "Int"
+      case _: Long => landmarkType = "Long"
+      case _ => throw new Exception("Landmark datatype is not supported.")
+    }
+
+    val distances_to_seq = distancesToSeq(landmarkType)
+    val dropCols = Seq("distances")
+
+    val output = pathGraph
+      .withColumn("distances", distances_to_seq(col("distances")))
+      .withColumn("distance",  explode(col("distances")))
+      .withColumn("reference", col("distance._1"))
+      .withColumn("distance",  col("distance._2"))
+      .drop(dropCols: _*)
+
+    if (landmarkType == "Int")
+      output.withColumn("reference", col("reference").cast(IntegerType))
+
+    else if (landmarkType == "Long")
+      output.withColumn("reference", col("reference").cast(LongType))
+
+    else
+      output.withColumn("reference", col("reference").cast(StringType))
+
+  }
+
+  def stronglyConnectedComponents(graphframe:GraphFrame, maxIter:Int = 10):DataFrame = {
+
+    val result = graphframe
+      .stronglyConnectedComponents
+      .maxIter(maxIter)
+      .run
+
+    result
+  }
+
+  private def distancesToSeq(landmarkType:String):UserDefinedFunction = {
+
+    if (landmarkType == "Int") {
+      udf((m:Map[Int,Int]) => m.toSeq)
+
+    } else if (landmarkType == "Long") {
+      udf((m: Map[Long, Int]) => m.toSeq)
+
+    } else {
+      udf((m: Map[String, Int]) => m.toSeq)
+
+    }
+  }
 }
