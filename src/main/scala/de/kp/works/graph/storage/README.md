@@ -3,7 +3,7 @@
 
 List of supported Graph Databases:
 
-1. [Nebula Graph](https://nebula-graph.io/)
+## [Nebula Graph](https://nebula-graph.io/)
 
 **Nebula Graph** is an open-source graph database capable of hosting super large scale graphs 
 with dozens of billions of vertices (nodes) and trillions of edges, with milliseconds of 
