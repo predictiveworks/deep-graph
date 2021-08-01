@@ -17,6 +17,8 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <encoding>UTF-8</encoding>
+
+    <janus.version>0.5.3</janus.version>
     <!--
     The Scala version that has been used for testing
     in 2.11.12
@@ -98,6 +100,14 @@
       <groupId>graphframes</groupId>
       <artifactId>graphframes</artifactId>
       <version>0.8.1-spark2.4-s_${scala.binary.version}</version>
+    </dependency>
+
+    <!-- JANUSGRAPH
+    -->
+    <dependency>
+      <groupId>org.janusgraph</groupId>
+      <artifactId>janusgraph-core</artifactId>
+      <version>0.5.3</version>
     </dependency>
 
   </dependencies>
