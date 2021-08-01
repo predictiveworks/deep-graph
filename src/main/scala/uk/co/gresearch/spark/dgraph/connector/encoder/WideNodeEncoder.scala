@@ -108,7 +108,7 @@ case class WideNodeEncoder(predicates: Set[Predicate], projectedSchema: Option[S
           (
             columns.get(e.getKey),
             allPredicatesMap.get(e.getKey).map(_.dgraphType),
-            e.getValue,
+            e.getValue
           )
         }
         .filter(e => e._1.isDefined && e._2.isDefined)
