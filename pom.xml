@@ -102,12 +102,72 @@
       <version>0.8.1-spark2.4-s_${scala.binary.version}</version>
     </dependency>
 
-    <!-- JANUSGRAPH
+    <!-- DGRAPH
+
+    This dependency specification is taken from G-Research's
+    Dgraph spark connector.
+
+    Note, we cannot leverage the connector directly as it is
+    compiled against Scala 2.12
     -->
     <dependency>
-      <groupId>org.janusgraph</groupId>
-      <artifactId>janusgraph-core</artifactId>
-      <version>0.5.3</version>
+      <groupId>io.dgraph</groupId>
+      <artifactId>dgraph4j</artifactId>
+      <!-- The dgraph4j client cannot be upgraded for Spark 2.4. -->
+      <!-- It cannot connect to the alpha: UNAVAILABLE: Network closed for unknown reason. -->
+      <!-- I suspect dependency issues in conjunction with Spark 2.4. -->
+      <version>20.03.1</version>
+      <exclusions>
+        <!-- Spark comes with a specific netty version, we want to compile against that version -->
+        <!-- This fixes: java.lang.ClassCastException: class io.netty.channel.epoll.EpollSocketChannel -->
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-codec-http2</artifactId>
+        </exclusion>
+        <!-- Spark comes with a specific netty version, we want to compile against that version -->
+        <!-- This fixes: java.lang.ClassCastException: class io.netty.channel.epoll.EpollSocketChannel -->
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-handler-proxy</artifactId>
+        </exclusion>
+        <!-- Spark comes with a specific slf4j-api jar, we don't want to pull in another one -->
+        <!-- This fixes: java.lang.LinkageError: loader constraint violation: when resolving method 'org.slf4j.ILoggerFactory org.slf4j.impl.StaticLoggerBinder.getLoggerFactory()' -->
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- REQUESTS
+    -->
+    <dependency>
+      <groupId>com.lihaoyi</groupId>
+      <artifactId>requests_${scala.binary.version}</artifactId>
+      <version>0.6.9</version>
+    </dependency>
+
+    <!--
+    Spark Core pulls in too old of a version.
+    -->
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>3.15.3</version>
+    </dependency>
+
+    <!--
+    Spark Core pulls in too old of a version.
+
+    Spark won't upgrade that version any time soon:
+    https://issues.apache.org/jira/browse/SPARK-23897
+
+    https://github.com/advisories/GHSA-mvr2-9pj6-7w5j
+    -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>30.1-jre</version>
     </dependency>
 
   </dependencies>
