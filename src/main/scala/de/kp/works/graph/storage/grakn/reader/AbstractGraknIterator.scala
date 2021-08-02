@@ -19,23 +19,24 @@ package de.kp.works.graph.storage.grakn.reader
  */
 
 import de.kp.works.graph.storage.grakn.GraknOptions
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.sources.{BaseRelation, TableScan}
+import org.apache.spark.Partition
+import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.StructType
-import org.apache.spark.sql.{Row, SQLContext}
+import org.slf4j.{Logger, LoggerFactory}
 
-case class GraknRelation(override val sqlContext: SQLContext, graknOptions: GraknOptions)
-  extends BaseRelation
-    with TableScan {
+class AbstractGraknIterator extends Iterator[InternalRow] {
 
-  private var datasetSchema:StructType = _
+  private val LOG: Logger = LoggerFactory.getLogger(classOf[AbstractGraknIterator])
 
-  override def schema: StructType = getSchema(graknOptions)
+  private var schema: StructType = _
 
-  override def buildScan(): RDD[Row] = {
-    new GraknRDD(sqlContext, graknOptions, datasetSchema).asInstanceOf[RDD[Row]]
+  def this(split:Partition, graknOptions:GraknOptions, schema:StructType) {
+    this()
+    this.schema = schema
   }
 
-  private def getSchema(graknOptions:GraknOptions):StructType = ???
+  override def hasNext: Boolean = ???
+
+  override def next(): InternalRow = ???
 
 }

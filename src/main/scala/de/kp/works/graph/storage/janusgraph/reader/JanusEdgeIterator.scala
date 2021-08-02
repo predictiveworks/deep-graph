@@ -1,4 +1,4 @@
-package de.kp.works.graph.storage.grakn.reader
+package de.kp.works.graph.storage.janusgraph.reader
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -18,24 +18,11 @@ package de.kp.works.graph.storage.grakn.reader
  *
  */
 
-import de.kp.works.graph.storage.grakn.GraknOptions
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.sources.{BaseRelation, TableScan}
+import de.kp.works.graph.storage.janusgraph.JanusOptions
+import org.apache.spark.Partition
 import org.apache.spark.sql.types.StructType
-import org.apache.spark.sql.{Row, SQLContext}
 
-case class GraknRelation(override val sqlContext: SQLContext, graknOptions: GraknOptions)
-  extends BaseRelation
-    with TableScan {
-
-  private var datasetSchema:StructType = _
-
-  override def schema: StructType = getSchema(graknOptions)
-
-  override def buildScan(): RDD[Row] = {
-    new GraknRDD(sqlContext, graknOptions, datasetSchema).asInstanceOf[RDD[Row]]
-  }
-
-  private def getSchema(graknOptions:GraknOptions):StructType = ???
+class JanusEdgeIterator(split:Partition, janusOptions:JanusOptions, schema:StructType)
+  extends AbstractJanusIterator(split, janusOptions, schema) {
 
 }

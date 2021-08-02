@@ -28,8 +28,14 @@ case class JanusRelation(override val sqlContext: SQLContext, janusOptions: Janu
   extends BaseRelation
     with TableScan {
 
-  override def schema: StructType = ???
+  private var datasetSchema:StructType = _
 
-  override def buildScan(): RDD[Row] = ???
+  override def schema: StructType = getSchema(janusOptions)
+
+  override def buildScan(): RDD[Row] = {
+    new JanusRDD(sqlContext, janusOptions, datasetSchema).asInstanceOf[RDD[Row]]
+  }
+
+  private def getSchema(janusOptions:JanusOptions):StructType = ???
 
 }

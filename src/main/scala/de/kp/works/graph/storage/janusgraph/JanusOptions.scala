@@ -26,14 +26,26 @@ class JanusOptions(@transient val parameters: CaseInsensitiveMap[String])(
   extends Serializable
   with Logging {
 
+  import JanusOptions._
+
   def this(parameters: Map[String, String], operaType: OperationType.Value) =
     this(CaseInsensitiveMap(parameters))(operaType)
 
-  def dataType: String = parameters(JanusOptions.TYPE)
+  val dataType: String = parameters(JanusOptions.TYPE)
+
+  var partitions: String = _
+  if (operationType == OperationType.READ) {
+
+    require(parameters.isDefinedAt(PARTITIONS), s"Option '$PARTITIONS' is required")
+    partitions = parameters(PARTITIONS)
+
+  }
 
 }
 
 object JanusOptions {
 
-  val TYPE = "type"
+  val PARTITIONS: String = "partitions"
+  val TYPE: String       = "type"
+
 }
