@@ -42,8 +42,8 @@ class Louvain[VD: ClassTag, ED: ClassTag]
      * of the same original graph.
      *
      * In the original algorithm each vertex examines the communities of its neighbors
-     * and makes a chooses a new community based on a function to maximize the calculated
-     * change in modularity.
+     * and chooses a new community based on a function to maximize the calculated change
+     * in modularity.
      *
      * In the distributed version all vertices make this choice simultaneously rather than
      * in serial order, updating the graph state after each change. Because choices are made

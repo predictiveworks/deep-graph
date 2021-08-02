@@ -135,7 +135,7 @@ object GraphAnalytics {
 
   }
   /**
-   * Closeness centrality scores each node based on their ‘closeness’ to all other
+   * Closeness centrality scores each node based on its ‘closeness’ to all other
    * nodes in the network.
    *
    * This measure calculates the shortest paths between all nodes, then assigns each
@@ -395,7 +395,7 @@ object GraphAnalytics {
    * by also taking into account how well connected a node is, and how many links their connections
    * have, and so on through the network.
    *
-   * By calculating the extended connections of a node, EigenCentrality can identify nodes with
+   * By calculating the extended connections of a node, Eigen Centrality can identify nodes with
    * influence over the whole network, not just those directly connected to it.
    *
    * EigenCentrality is a good ‘all-round’ SNA score, handy for understanding human social networks,
