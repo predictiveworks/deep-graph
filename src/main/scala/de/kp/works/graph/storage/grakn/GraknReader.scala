@@ -1,4 +1,5 @@
-package de.kp.works.graph.storage
+package de.kp.works.graph.storage.grakn
+
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -18,29 +19,35 @@ package de.kp.works.graph.storage
  *
  */
 
-import de.kp.works.graph.storage.dgraph.DgraphReader
-import de.kp.works.graph.storage.grakn.GraknReader
-import de.kp.works.graph.storage.janusgraph.JgraphReader
-import de.kp.works.spark.Session
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.graphframes.GraphFrame
 
 import java.util.Properties
 
-object ReaderFactory {
+object GraknReader {
 
-  implicit val session: SparkSession = Session.getSession
+  /** GRAPH API **/
 
-  def fromDgraph(properties:Properties):GraphFrame = {
-    val targets = properties.getProperty("targets").split(",").map(_.trim)
-    DgraphReader.loadGraph(targets: _*)
+  def loadGraph(properties:Properties)(implicit session: SparkSession): GraphFrame = {
+    GraphFrame(loadVertices(properties), loadEdges(properties))
   }
 
-  def fromJgraph(properties:Properties):GraphFrame = {
-    JgraphReader.loadGraph(properties)
+  /** VERTICES API **/
+
+  def loadVertices(properties:Properties)(implicit session: SparkSession): DataFrame = {
+    session
+      .read
+      .grakn(properties)
+      .loadVertices
   }
 
-  def fromGrakn(properties:Properties):GraphFrame = {
-    GraknReader.loadGraph(properties)
+  /** EDGES API **/
+
+  def loadEdges(properties:Properties)(implicit session: SparkSession): DataFrame = {
+    session
+      .read
+      .grakn(properties)
+      .loadEdges
   }
+
 }

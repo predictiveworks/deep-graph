@@ -1,4 +1,4 @@
-package de.kp.works.graph.storage
+package de.kp.works.graph.storage.janusgraph
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -18,29 +18,18 @@ package de.kp.works.graph.storage
  *
  */
 
-import de.kp.works.graph.storage.dgraph.DgraphReader
-import de.kp.works.graph.storage.grakn.GraknReader
-import de.kp.works.graph.storage.janusgraph.JgraphReader
-import de.kp.works.spark.Session
-import org.apache.spark.sql.SparkSession
 import org.graphframes.GraphFrame
-
 import java.util.Properties
 
-object ReaderFactory {
+object JgraphWriter {
 
-  implicit val session: SparkSession = Session.getSession
+  def saveGraph(graphframe:GraphFrame,properties:Properties):Unit = {
 
-  def fromDgraph(properties:Properties):GraphFrame = {
-    val targets = properties.getProperty("targets").split(",").map(_.trim)
-    DgraphReader.loadGraph(targets: _*)
-  }
+    val vertices = graphframe.vertices
+    val edges = graphframe.edges
 
-  def fromJgraph(properties:Properties):GraphFrame = {
-    JgraphReader.loadGraph(properties)
-  }
+    vertices.write.jgraph(properties).writeVertices()
+    edges.write.jgraph(properties).writeEdges()
 
-  def fromGrakn(properties:Properties):GraphFrame = {
-    GraknReader.loadGraph(properties)
   }
 }
