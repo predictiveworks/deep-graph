@@ -18,15 +18,19 @@ package de.kp.works.graph.storage.janusgraph.reader
  *
  */
 
-import de.kp.works.graph.storage.janusgraph.JanusOptions
+import de.kp.works.graph.storage.janusgraph.JanusUtils.JanusValueGetter
+import de.kp.works.graph.storage.janusgraph.{JanusOptions, JanusProperty, JanusUtils}
 import org.apache.spark.Partition
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.SpecificInternalRow
 import org.apache.spark.sql.types.StructType
 import org.slf4j.{Logger, LoggerFactory}
 
-class AbstractJanusIterator extends Iterator[InternalRow] {
+abstract class AbstractJanusIterator extends Iterator[InternalRow] {
 
   private val LOG: Logger = LoggerFactory.getLogger(classOf[AbstractJanusIterator])
+
+  protected var dataIterator: Iterator[List[JanusProperty]] = _
 
   private var schema: StructType = _
 
@@ -35,8 +39,21 @@ class AbstractJanusIterator extends Iterator[InternalRow] {
     this.schema = schema
   }
 
-  override def hasNext: Boolean = ???
+  override def hasNext: Boolean
 
-  override def next(): InternalRow = ???
+  override def next(): InternalRow = {
+
+    val getters: Array[JanusValueGetter] = JanusUtils.makeGetters(schema)
+    val mutableRow = new SpecificInternalRow(schema.fields.map(x => x.dataType))
+
+    val resultSet: Array[JanusProperty] = dataIterator.next().toArray
+    for (i <- getters.indices) {
+      getters(i).apply(resultSet(i), mutableRow, i)
+      if (resultSet(i) == null) mutableRow.setNullAt(i)
+    }
+
+    mutableRow
+
+  }
 
 }

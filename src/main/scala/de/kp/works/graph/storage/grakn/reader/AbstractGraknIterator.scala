@@ -18,15 +18,19 @@ package de.kp.works.graph.storage.grakn.reader
  *
  */
 
-import de.kp.works.graph.storage.grakn.GraknOptions
+import de.kp.works.graph.storage.grakn.GraknUtils.GraknValueGetter
+import de.kp.works.graph.storage.grakn.{GraknOptions, GraknProperty, GraknUtils}
 import org.apache.spark.Partition
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.SpecificInternalRow
 import org.apache.spark.sql.types.StructType
 import org.slf4j.{Logger, LoggerFactory}
 
-class AbstractGraknIterator extends Iterator[InternalRow] {
+abstract class AbstractGraknIterator extends Iterator[InternalRow] {
 
   private val LOG: Logger = LoggerFactory.getLogger(classOf[AbstractGraknIterator])
+
+  protected var dataIterator: Iterator[List[GraknProperty]] = _
 
   private var schema: StructType = _
 
@@ -35,8 +39,22 @@ class AbstractGraknIterator extends Iterator[InternalRow] {
     this.schema = schema
   }
 
-  override def hasNext: Boolean = ???
+  override def hasNext: Boolean
 
-  override def next(): InternalRow = ???
+  override def next(): InternalRow = {
+
+    val getters: Array[GraknValueGetter] = GraknUtils.makeGetters(schema)
+    val mutableRow = new SpecificInternalRow(schema.fields.map(x => x.dataType))
+
+    val resultSet: Array[GraknProperty] = dataIterator.next().toArray
+    for (i <- getters.indices) {
+      getters(i).apply(resultSet(i), mutableRow, i)
+      if (resultSet(i) == null) mutableRow.setNullAt(i)
+    }
+
+    mutableRow
+
+
+  }
 
 }
