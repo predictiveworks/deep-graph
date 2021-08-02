@@ -30,3 +30,11 @@ object DataTypeEnum extends Enumeration {
     dataType.equalsIgnoreCase(VERTEX.toString) || dataType.equalsIgnoreCase(EDGE.toString)
   }
 }
+
+object OperationType extends Enumeration {
+
+  type Operation = Value
+  val READ: OperationType.Value = Value("read")
+  val WRITE: OperationType.Value = Value("write")
+
+}

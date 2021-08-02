@@ -1,4 +1,4 @@
-package de.kp.works.graph.storage.janusgraph
+package de.kp.works.graph.storage.janusgraph.reader
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -18,22 +18,18 @@ package de.kp.works.graph.storage.janusgraph
  *
  */
 
-import org.apache.spark.internal.Logging
-import org.apache.spark.sql.catalyst.util.CaseInsensitiveMap
+import de.kp.works.graph.storage.janusgraph.JanusOptions
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.sources.{BaseRelation, TableScan}
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.{Row, SQLContext}
 
-class JanusOptions(@transient val parameters: CaseInsensitiveMap[String])(
-  operationType: OperationType.Value)
-  extends Serializable
-  with Logging {
+case class JanusRelation(override val sqlContext: SQLContext, janusOptions: JanusOptions)
+  extends BaseRelation
+    with TableScan {
 
-  def this(parameters: Map[String, String], operaType: OperationType.Value) =
-    this(CaseInsensitiveMap(parameters))(operaType)
+  override def schema: StructType = ???
 
-  def dataType: String = parameters(JanusOptions.TYPE)
+  override def buildScan(): RDD[Row] = ???
 
-}
-
-object JanusOptions {
-
-  val TYPE = "type"
 }

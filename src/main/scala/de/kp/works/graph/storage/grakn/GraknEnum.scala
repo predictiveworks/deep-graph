@@ -1,5 +1,4 @@
 package de.kp.works.graph.storage.grakn
-
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -29,4 +28,11 @@ object DataTypeEnum extends Enumeration {
   def validDataType(dataType: String): Boolean = {
     dataType.equalsIgnoreCase(VERTEX.toString) || dataType.equalsIgnoreCase(EDGE.toString)
   }
+}
+
+object OperationType extends Enumeration {
+
+  type Operation = Value
+  val READ: OperationType.Value = Value("read")
+  val WRITE: OperationType.Value = Value("write")
 }

@@ -1,5 +1,8 @@
 package de.kp.works.graph.storage.grakn
 
+import org.apache.spark.internal.Logging
+import org.apache.spark.sql.catalyst.util.CaseInsensitiveMap
+
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -18,6 +21,18 @@ package de.kp.works.graph.storage.grakn
  * @author Stefan Krusche, Dr. Krusche & Partner PartG
  *
  */
+
+class GraknOptions(@transient val parameters: CaseInsensitiveMap[String])(
+  operationType: OperationType.Value)
+  extends Serializable
+    with Logging {
+
+  def this(parameters: Map[String, String], operaType: OperationType.Value) =
+    this(CaseInsensitiveMap(parameters))(operaType)
+
+  def dataType: String = parameters(GraknOptions.TYPE)
+
+}
 
 object GraknOptions {
 

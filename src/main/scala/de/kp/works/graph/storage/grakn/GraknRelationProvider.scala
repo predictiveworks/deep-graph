@@ -19,13 +19,19 @@ package de.kp.works.graph.storage.grakn
  *
  */
 
+import de.kp.works.graph.storage.grakn.reader.GraknRelation
+import de.kp.works.graph.storage.grakn.writer.{GraknEdgeWriter, GraknVertexWriter}
+import org.apache.spark.sql.catalyst.util.CaseInsensitiveMap
 import org.apache.spark.sql.sources.v2.writer.DataSourceWriter
 import org.apache.spark.sql.sources.v2.{DataSourceOptions, WriteSupport}
 import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SQLContext, SaveMode}
+import org.slf4j.LoggerFactory
 
+import java.util.Map.Entry
 import java.util.Optional
+import scala.collection.JavaConversions._
 
 class GraknRelationProvider
   extends CreatableRelationProvider
@@ -33,12 +39,45 @@ class GraknRelationProvider
   with WriteSupport
   with DataSourceRegister {
 
+  private val LOG = LoggerFactory.getLogger(this.getClass)
+
   override def shortName(): String = "grakn"
 
-  override def createRelation(sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], data: DataFrame): BaseRelation = ???
+  override def createRelation(sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], data: DataFrame): BaseRelation = {
 
-  override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = ???
-
-  override def createWriter(s: String, structType: StructType, saveMode: SaveMode, dataSourceOptions: DataSourceOptions): Optional[DataSourceWriter] = ???
+    val graknOptions = new GraknOptions(parameters, OperationType.READ)
+    GraknRelation(sqlContext, graknOptions)
 
   }
+
+  override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
+    throw new Exception("not implemented")
+  }
+
+  override def createWriter(uuid: String, schema: StructType, saveMode: SaveMode, dataSourceOptions: DataSourceOptions): Optional[DataSourceWriter] = {
+
+    var parameters: Map[String, String] = Map()
+    for (entry: Entry[String, String] <- dataSourceOptions.asMap().entrySet) {
+      parameters += (entry.getKey -> entry.getValue)
+    }
+
+    val graknOptions: GraknOptions =
+      new GraknOptions(CaseInsensitiveMap(parameters))(OperationType.WRITE)
+
+    if (saveMode == SaveMode.Ignore || saveMode == SaveMode.ErrorIfExists) {
+      LOG.warn("Save mode `Ignore` and `ErrorIfExists` is not supported.")
+    }
+    /*
+     * Distinguish between vertices and edges
+     */
+    val dataType = graknOptions.dataType
+    if (DataTypeEnum.VERTEX == DataTypeEnum.withName(dataType)) {
+      Optional.of(new GraknVertexWriter(graknOptions, schema))
+
+    } else {
+      Optional.of(new GraknEdgeWriter(graknOptions, schema))
+
+    }
+  }
+
+}
