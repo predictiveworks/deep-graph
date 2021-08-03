@@ -134,9 +134,24 @@ def shortestPaths(graphframe:GraphFrame, landmarks:Array[Any]):DataFrame
 
 ## Storage
 
-### Dgraph
+**DeepGraph** supports a handpicked list of awesome distributed graph databases. An important 
+use case is to leverage the power of connected data for contextualization of DataFrame-centric 
+machine & deep learning. As important is the generation of knowledge graphs from insight and 
+foresight revealed by the full spectrum of machine intelligence. 
 
-### HGraphDB
+### [Dgraph](https://dgraph.io)
+
+**Dgraph** is a native GraphQL graph database that is built to be distributed. This makes it
+highly scalable, performant, and blazing fast – even for complex queries over terabytes of data.
+
+**DeepGraph** leverages Dgraph's Spark Connector to read & write vertices and edges from
+and to Dgraph.
+
+### [HGraphDB](https://github.com/rayokota/hgraphdb)
+
+**HGraphDB** exposes Apache HBase as a TinkerPop Graph Database. **DeepGraph** leverages a modification
+of Hortonworks* Spark-on-HBase Connector (SHC) to read vertices and edges from HGraphDB's HBase backend
+and transforms them int a GraphFrame for further analysis.
 
 ## Visualization
 
