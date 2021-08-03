@@ -20,4 +20,8 @@ highly scalable, performant, and blazing fast – even for complex queries over 
 **DeepGraph** leverages Dgraph's Spark Connector to read & write vertices and edges from
 and to Dgraph.
 
-TBC
+## [HGraphDB](https://github.com/rayokota/hgraphdb)
+
+**HGraphDB** exposes Apache HBase as a TinkerPop Graph Database. **DeepGraph** leverages a modification
+of Hortonworks* Spark-on-HBase Connector (SHC) to read vertices and edges from HGraphDB's HBase backend
+and transforms them int a GraphFrame for further analysis.
