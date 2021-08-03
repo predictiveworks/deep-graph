@@ -150,7 +150,7 @@ and to Dgraph.
 ### [HGraphDB](https://github.com/rayokota/hgraphdb)
 
 **HGraphDB** exposes Apache HBase as a TinkerPop Graph Database. **DeepGraph** leverages a modification
-of Hortonworks* Spark-on-HBase Connector (SHC) to read vertices and edges from HGraphDB's HBase backend
+of Hortonworks Spark-on-HBase Connector (SHC) to read vertices and edges from HGraphDB's HBase backend
 and transforms them int a GraphFrame for further analysis.
 
 ## Visualization
