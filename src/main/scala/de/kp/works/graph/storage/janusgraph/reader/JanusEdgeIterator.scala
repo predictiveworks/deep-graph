@@ -25,4 +25,5 @@ import org.apache.spark.sql.types.StructType
 class JanusEdgeIterator(split:Partition, janusOptions:JanusOptions, schema:StructType)
   extends AbstractJanusIterator(split, janusOptions, schema) {
 
+  override def hasNext: Boolean = ???
 }

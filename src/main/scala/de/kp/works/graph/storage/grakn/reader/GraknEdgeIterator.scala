@@ -25,4 +25,25 @@ import org.apache.spark.sql.types.StructType
 class GraknEdgeIterator(split:Partition, graknOptions:GraknOptions, schema:StructType)
   extends AbstractGraknIterator(split, graknOptions, schema) {
 
+  override def hasNext: Boolean = {
+
+    var continue: Boolean = false
+    var break: Boolean    = false
+
+    while ((dataIterator == null || !dataIterator.hasNext) && !break) {
+
+      resultValues.clear()
+      continue = false
+
+      // TODO
+
+    }
+
+    if (dataIterator == null) {
+      return false
+    }
+
+    dataIterator.hasNext
+
+  }
 }

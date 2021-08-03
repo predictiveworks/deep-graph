@@ -26,11 +26,16 @@ import org.apache.spark.sql.catalyst.expressions.SpecificInternalRow
 import org.apache.spark.sql.types.StructType
 import org.slf4j.{Logger, LoggerFactory}
 
+import scala.collection.mutable
+
 abstract class AbstractGraknIterator extends Iterator[InternalRow] {
 
   private val LOG: Logger = LoggerFactory.getLogger(classOf[AbstractGraknIterator])
 
   protected var dataIterator: Iterator[List[GraknProperty]] = _
+
+  protected var resultValues: mutable.ListBuffer[List[GraknProperty]] =
+    mutable.ListBuffer[List[GraknProperty]]()
 
   private var schema: StructType = _
 

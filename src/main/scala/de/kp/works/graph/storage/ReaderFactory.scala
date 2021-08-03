@@ -20,7 +20,9 @@ package de.kp.works.graph.storage
 
 import de.kp.works.graph.storage.dgraph.DgraphReader
 import de.kp.works.graph.storage.grakn.GraknReader
+import de.kp.works.graph.storage.hgraphdb.HgraphReader
 import de.kp.works.graph.storage.janusgraph.JgraphReader
+
 import de.kp.works.spark.Session
 import org.apache.spark.sql.SparkSession
 import org.graphframes.GraphFrame
@@ -36,11 +38,16 @@ object ReaderFactory {
     DgraphReader.loadGraph(targets: _*)
   }
 
+  def fromGrakn(properties:Properties):GraphFrame = {
+    GraknReader.loadGraph(properties)
+  }
+
+  def fromHgraph(properties:Properties):GraphFrame = {
+    HgraphReader.loadGraph(properties)
+  }
+
   def fromJgraph(properties:Properties):GraphFrame = {
     JgraphReader.loadGraph(properties)
   }
 
-  def fromGrakn(properties:Properties):GraphFrame = {
-    GraknReader.loadGraph(properties)
-  }
 }
