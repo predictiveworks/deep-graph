@@ -71,9 +71,8 @@ def freeman(graphframe:GraphFrame):Double
 ```
 
 #### Neighborhood Connectivity
-Neighborhood connectivity is a measure based on degree centrality.
-Connectivity of a vertex is its degree. Neighborhood connectivity
-is average connectivity of neighbours of given vertex.
+Neighborhood connectivity is a measure based on degree centrality, and computes the average connectivity
+of the neighbors of a given vertex. Here, connectivity is the degree centrality of a vertex.
 ```
 def neighborhood(graphframe:GraphFrame):DataFrame
 ```
