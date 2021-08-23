@@ -7,7 +7,6 @@ data to information to knowledge. DeepGraph is based on GraphFrames, extends its
 thereby supports GraphFrame's mission to provide a unified approach from data to knowledge.
 
 ## Analytics
-
 **DeepGraph** supports a GraphFrame-based interface to the following algorithms:
 
 ### Centrality
@@ -65,26 +64,74 @@ def eigenvector(graphframe:GraphFrame):DataFrame
 ```
 
 #### Freeman's Network Centrality
-TBD
+Freeman's network centrality is a means to determine the heterogeneity
+of the degree centrality among all the vertices of the network.
+```
+def freeman(graphframe:GraphFrame):Double
+```
 
 #### Neighborhood Connectivity
-TBD
+Neighborhood connectivity is a measure based on degree centrality.
+Connectivity of a vertex is its degree. Neighborhood connectivity
+is average connectivity of neighbours of given vertex.
+```
+def neighborhood(graphframe:GraphFrame):DataFrame
+```
 
 #### Page Rank
-TBD
+PageRank is a variant of EigenCentrality, also assigning nodes a score 
+based on their connections, and their connections’ connections. 
+
+The difference is that PageRank also takes link direction and weight into 
+account – so links can only pass influence in one direction, and pass different 
+amounts of influence.
+
+This measure uncovers nodes whose influence extends beyond their direct connections 
+into the wider network. Because it takes into account direction and connection weight, 
+PageRank can be helpful for understanding citations and authority.
+
+PageRank is famously one of the ranking algorithms behind the original Google search 
+engine (the ‘Page’ part of its name comes from the creator and Google founder, Sergei Brin).
+```
+def pageRank(graphframe:GraphFrame, maxIter:Int = 20, resetProbability:Double=0.15):DataFrame
+```
+
+**DeepGraph** also supports the personalized PageRank algorithm.
+```
+def personalizedPageRank(graphframe:GraphFrame, landmarks:Array[Any], maxIter:Int = 20, resetProbability:Double=0.15): DataFrame
+```
 
 ### Community Detection
 
-#### Community Detection (Sparkling)...
-
 #### Connected Components
-TBD
+```
+def connectedComponents(graphframe:GraphFrame):DataFrame
+```
 
-#### Label Propagation
-TBD
+#### Label Propagation (LPA)
+Each node in the network is initially assigned to its own community.
+At every super step, nodes send their community affiliation to all
+neighbors and update their state to the mode community affiliation
+of incoming messages.
+
+LPA is a standard community detection algorithm for graphs. It is very
+inexpensive computationally, although (1) convergence is not guaranteed
+and (2) one can end up with trivial solutions (all nodes are identified
+into a single community).
+
+This method runs the GraphFrame Label Propagation Algorithm
+for detecting communities in networks.
+```
+def detectCommunities(graphframe:GraphFrame, iterations:Int):DataFrame
+```
+
+This method leverages the GraphX implementation of Community
+Detection as an alternative approach.
+```
+def detectCommunities(graphframe:GraphFrame, epsilon:Double=0.1):DataFrame
+```
 
 #### Louvain
-
 **DeepGraph** supported a distributed version of the Louvain algorithm to detect
 communities in large networks.It maximizes a modularity score for each community, 
 where the modularity quantifies the quality of an assignment of nodes to communities. 
@@ -97,16 +144,33 @@ def louvain(graphframe:GraphFrame, minProgress:Int, progressCounter:Int):DataFra
 ```
 
 #### Network Modularity
-TBD
+Modularity measures strength of division of a network into communities (modules,clusters). 
+Measures take values from range [-1, 1]. Values close to 1 indicates strong community structure. 
+A value of 0 indicates that the community division is not better than random.
+```
+def modularity(graphframe:GraphFrame):Double
+```
 
 #### Strongly Connected Components
-TBD
+```
+def stronglyConnectedComponents(graphframe:GraphFrame, maxIter:Int = 10):DataFrame
+```
 
 ### Embeddedness
-TBD
+This method computes the average embeddedness of neighbours
+of a given vertex.
+```
+def embeddedness(graphframe:GraphFrame):DataFrame
+```
 
 ### HITS
-TBD
+After measure computation, each vertex of graph will have assigned
+two scores (hub, authority). Where hub score is proportional to the
+sum of authority score of its neighbours, and authority score is
+proportional to sum of hub score of its neighbours.
+```
+def hits(graphframe:GraphFrame):DataFrame
+```
 
 ### Link Prediction
 
@@ -119,8 +183,11 @@ def adamicAdar(graphframe:GraphFrame):DataFrame
 ```
 
 #### Common Neighbors
-
-TBD
+Common Neighbours measure is defined as the number of common
+neighbours of two given vertices.
+```
+def commonNeighbors(graphframe:GraphFrame):DataFrame
+```
 
 ### Path Finding
 
@@ -152,6 +219,3 @@ and to Dgraph.
 **HGraphDB** exposes Apache HBase as a TinkerPop Graph Database. **DeepGraph** leverages a modification
 of Hortonworks Spark-on-HBase Connector (SHC) to read vertices and edges from HGraphDB's HBase backend
 and transforms them int a GraphFrame for further analysis.
-
-## Visualization
-

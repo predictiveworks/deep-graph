@@ -37,7 +37,7 @@ object Session {
     Conf.init()
 
     val conf = new SparkConf()
-      .setAppName("VantageFrames")
+      .setAppName("DeepGraph")
       .setMaster("local[4]")
       /*
        * Driver & executor configuration

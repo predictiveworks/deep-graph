@@ -18,7 +18,6 @@ package de.kp.works.graph.analytics
  *
  */
 
-import de.kp.works.graph.analytics.GraphAnalytics.session
 import de.kp.works.spark.Session
 import org.apache.spark.graphx.{Edge, Graph}
 import org.apache.spark.ml.linalg.Vector
@@ -730,7 +729,7 @@ object GraphAnalytics {
    * PageRank is famously one of the ranking algorithms behind the original Google search engine (the ‘Page’
    * part of its name comes from creator and Google founder, Sergei Brin).
    */
-  def pageRank(graphframe:GraphFrame, maxIter:Int = 20, resetProbability:Double=0.15):Unit = {
+  def pageRank(graphframe:GraphFrame, maxIter:Int = 20, resetProbability:Double=0.15):DataFrame = {
 
     val rankGraph = graphframe
       .pageRank
