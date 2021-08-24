@@ -1,4 +1,4 @@
-package de.kp.works.graph.storage.janusgraph.reader
+package de.kp.works.graph.storage.igraph
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -18,12 +18,29 @@ package de.kp.works.graph.storage.janusgraph.reader
  *
  */
 
-import de.kp.works.graph.storage.janusgraph.JanusOptions
-import org.apache.spark.Partition
-import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.graphframes.GraphFrame
 
-class JanusVertexIterator(split:Partition, janusOptions:JanusOptions, schema:StructType)
-  extends AbstractJanusIterator(split, janusOptions, schema) {
+import java.util.Properties
 
-  override def hasNext: Boolean = ???
+object IgraphReader {
+
+  /** GRAPH API **/
+
+  def loadGraph(properties:Properties)(implicit session: SparkSession): GraphFrame = {
+    GraphFrame(loadVertices(properties), loadEdges(properties))
+  }
+
+  /** VERTICES API **/
+
+  def loadVertices(properties:Properties)(implicit session: SparkSession): DataFrame = {
+    throw new Exception("Not implemented yet")
+  }
+
+  /** EDGES API **/
+
+  def loadEdges(properties:Properties)(implicit session: SparkSession): DataFrame = {
+    throw new Exception("Not implemented yet")
+  }
+
 }

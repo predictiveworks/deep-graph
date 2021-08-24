@@ -6,7 +6,10 @@
   <version>1.0.0</version>
 
   <name>DeepGraph</name>
-  <description></description>
+  <description>
+    DeepGraph is a graph analytics project that complements GraphFrames
+    builtin analytics with popular graph analytics algorithms.
+  </description>
 
   <inceptionYear>2021</inceptionYear>
   <licenses>

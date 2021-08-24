@@ -19,35 +19,38 @@ package de.kp.works.graph.storage
  */
 
 import de.kp.works.graph.storage.dgraph.DgraphReader
-import de.kp.works.graph.storage.grakn.GraknReader
 import de.kp.works.graph.storage.hgraphdb.HgraphReader
-import de.kp.works.graph.storage.janusgraph.JgraphReader
-
+import de.kp.works.graph.storage.igraph.IgraphReader
 import de.kp.works.spark.Session
 import org.apache.spark.sql.SparkSession
 import org.graphframes.GraphFrame
 
 import java.util.Properties
-
+/**
+ * The current implementation of the [ReaderFactory]
+ * supports three channels to connect to network data
+ */
 object ReaderFactory {
 
   implicit val session: SparkSession = Session.getSession
-
+  /**
+   * Dgraph
+   */
   def fromDgraph(properties:Properties):GraphFrame = {
     val targets = properties.getProperty("targets").split(",").map(_.trim)
     DgraphReader.loadGraph(targets: _*)
   }
-
-  def fromGrakn(properties:Properties):GraphFrame = {
-    GraknReader.loadGraph(properties)
-  }
-
+  /**
+   * HGraphDB
+   */
   def fromHgraph(properties:Properties):GraphFrame = {
     HgraphReader.loadGraph(properties)
   }
-
-  def fromJgraph(properties:Properties):GraphFrame = {
-    JgraphReader.loadGraph(properties)
+  /**
+   * IgniteGraph
+   */
+  def fromIgraph(properties:Properties):GraphFrame = {
+    IgraphReader.loadGraph(properties)
   }
 
 }
